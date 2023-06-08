@@ -5,6 +5,7 @@ channels:
 dependencies:
   - herbie-data=2023.3.0
   - pandas=2.0.2
+  - pip=23.1.2
   - pip:
     - arrow==1.2.3
     - pyarrow==12.0.0
