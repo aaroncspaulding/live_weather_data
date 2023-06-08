@@ -1,0 +1,36 @@
+name: Run Python script
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'  # This schedules the action to run once a day at midnight.
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Use the version of Python your script requires.
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Include any libraries your script needs in a requirements.txt file.
+
+    - name: Run script
+      run: python download_hrrr.py
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Update data" -a
+        git push

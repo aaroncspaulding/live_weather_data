@@ -1,0 +1,3 @@
+herbie-data
+pandas
+pyarrow
