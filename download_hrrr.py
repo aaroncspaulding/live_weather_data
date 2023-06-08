@@ -1,8 +1,10 @@
+import os
 from datetime import datetime, timedelta
 from herbie import Herbie, Herbie_latest, FastHerbie
 
-# https://mesowest.utah.edu/html/hrrr/zarr_documentation/html/zarr_variables.html
 
+# https://mesowest.utah.edu/html/hrrr/zarr_documentation/html/zarr_variables.html
+base_path = os.path.join(os.path.join(os.getcwd(), 'weather_data'), 'hrrr')
 
 def get_latest_hrrr_time():
     current_time = datetime.utcnow()
@@ -21,4 +23,4 @@ def get_latest_hrrr_time():
 H = Herbie(get_latest_hrrr_time())
 near_surface_smoke_data = H.xarray('MASSDEN')
 near_surface_smoke_data = near_surface_smoke_data.mdens.to_pandas()
-near_surface_smoke_data.to_parquet('weather_data/hrrr/near_surface_smoke.parquet')
+near_surface_smoke_data.to_parquet(os.path.join(base_path, 'near_surface_smoke.parquet'))
