@@ -34,17 +34,31 @@ def get_latest_hrrr_time(current_time_):
     return forecast_time
 
 
-# Update HRRR Data
+hrrr_variables = {'MASSDEN': 'near_surface_smoke'}
 latest_hrrr_time = get_latest_hrrr_time(current_time - hrrr_timebuffer)
-H = Herbie(latest_hrrr_time.strftime('%Y-%m-%d %H:%M:%S'))
-near_surface_smoke_data = H.xarray('MASSDEN')
-near_surface_smoke_data = near_surface_smoke_data.mdens.to_pandas()
+for fxx in range(0, 49):
+    H = Herbie(latest_hrrr_time.strftime('%Y-%m-%d %H:%M:%S'),
+               model='hrrr',
+               product='sfc',
+               fxx=fxx)
+
+    for grib_name in hrrr_variables.keys():
+        path = f'{hrrr_variables.get(grib_name)}{str(fxx).rjust(3, "0")}.parquet'
+        try:
+            near_surface_smoke_data = H.xarray('MASSDEN')
+            near_surface_smoke_data = near_surface_smoke_data.mdens.to_pandas()
+            near_surface_smoke_data.to_parquet(os.path.join(weather_base_path, path))
+        except ValueError:
+            # Then we couldn't find the data
+            try:
+                os.remove(path)
+            except FileNotFoundError:
+                pass
 
 status['hrrr_last_updated_time_utc'] = current_time.strftime('%Y-%m-%d %H:%M:%S')
 status['hrrr_valid_time_utc'] = latest_hrrr_time.strftime('%Y-%m-%d %H:%M:%S')
 
-near_surface_smoke_data.to_parquet(os.path.join(weather_base_path, 'near_surface_smoke.parquet'))
-
 # Write out status
 with open(status_file_path, 'w') as file:
     json.dump(status, file, indent=4)
+
