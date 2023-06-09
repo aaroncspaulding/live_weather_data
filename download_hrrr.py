@@ -9,7 +9,7 @@ base_path = os.getcwd()
 weather_base_path = os.path.join(os.path.join(base_path, 'weather_data'), 'hrrr')
 current_time = datetime.utcnow()
 
-hrrr_timebuffer = timedelta(hours=1, minutes=30)
+hrrr_time_buffer = timedelta(hours=1, minutes=30)
 
 status_file_path = os.path.join(base_path, 'status.json')
 if os.path.exists(status_file_path):
@@ -35,7 +35,7 @@ def get_latest_hrrr_time(current_time_):
 
 
 hrrr_variables = {'MASSDEN': 'near_surface_smoke'}
-latest_hrrr_time = get_latest_hrrr_time(current_time - hrrr_timebuffer)
+latest_hrrr_time = get_latest_hrrr_time(current_time - hrrr_time_buffer)
 for fxx in range(0, 49):
     H = Herbie(latest_hrrr_time.strftime('%Y-%m-%d %H:%M:%S'),
                model='hrrr',
@@ -45,6 +45,7 @@ for fxx in range(0, 49):
     for grib_name in hrrr_variables.keys():
         path = f'{hrrr_variables.get(grib_name)}{str(fxx).rjust(3, "0")}.parquet'
         try:
+            # TODO: Fix this to make it work on any type of field
             near_surface_smoke_data = H.xarray('MASSDEN')
             near_surface_smoke_data = near_surface_smoke_data.mdens.to_pandas()
             near_surface_smoke_data.to_parquet(os.path.join(weather_base_path, path))
@@ -61,4 +62,3 @@ status['hrrr_valid_time_utc'] = latest_hrrr_time.strftime('%Y-%m-%d %H:%M:%S')
 # Write out status
 with open(status_file_path, 'w') as file:
     json.dump(status, file, indent=4)
-
