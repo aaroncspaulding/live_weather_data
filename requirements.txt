@@ -1,3 +1,7 @@
 herbie-data
 pandas
 pyarrow
+numpy
+contourpy
+scipy
+simplification
